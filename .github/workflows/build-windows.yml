@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-windows:
-    name: Build Windows executable (Tauri, cross-compiled)
+    name: Build Windows installer (Tauri, cross-compiled NSIS)
     runs-on: ubuntu-latest
 
     steps:
@@ -23,25 +23,21 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Build frontend
-        run: npm run build
-
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: x86_64-pc-windows-gnu
-          components: clippy, rustfmt
 
-      - name: Install mingw-w64 cross toolchain
+      - name: Install cross-compilation and NSIS tooling
         run: |
           sudo apt-get update
-          sudo apt-get install -y mingw-w64
+          sudo apt-get install -y mingw-w64 nsis clang llvm lld
 
-      - name: Cross-compile Windows binary
-        run: cargo build --release --target x86_64-pc-windows-gnu --manifest-path src-tauri/Cargo.toml
+      - name: Build Tauri app (NSIS installer, cross-compiled)
+        run: npm run tauri build -- --target x86_64-pc-windows-gnu --bundles nsis
 
-      - name: Upload built binary
+      - name: Upload NSIS installer
         uses: actions/upload-artifact@v4
         with:
-          name: tauri-windows-binary
-          path: src-tauri/target/x86_64-pc-windows-gnu/release/*.exe
+          name: daily-consistency-tracker-windows-installer
+          path: src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/*.exe
