@@ -1,6 +1,18 @@
 # Daily Consistency Tracker
 
+[![Build Installer](https://github.com/Adityasharma0810/TODO_APP/actions/workflows/build.yml/badge.svg)](https://github.com/Adityasharma0810/TODO_APP/actions/workflows/build.yml)
+[![Download Latest](https://img.shields.io/github/v/release/Adityasharma0810/TODO_APP?label=Download)](https://github.com/Adityasharma0810/TODO_APP/releases/latest)
+
 A 100% offline Windows desktop app for tracking daily recurring tasks with streak tracking and visualizations. Built with Tauri v2, React, TypeScript, and SQLite.
+
+## Download
+
+Grab the latest installer from the [Releases page](https://github.com/Adityasharma0810/TODO_APP/releases/latest):
+
+- **`*.msi`** — Windows Installer package (double-click to install)
+- **`*.exe`** — NSIS installer (works on all Windows editions)
+
+> No admin rights required. The app runs 100% offline with no dependencies.
 
 ## Features
 
@@ -92,11 +104,26 @@ The Vite dev server starts on `http://localhost:1420` with HMR on port 1421.
 
 ## Building for Production
 
+### Local build
+
 ```bash
 npm run tauri build
 ```
 
 The bundled installer will be in `src-tauri/target/release/bundle/`.
+
+### CI build (GitHub Actions)
+
+Every push to `main` triggers an automated build. The installer is available as a **build artifact** from the [Actions tab](https://github.com/Adityasharma0810/TODO_APP/actions).
+
+To create a **release** with a downloadable installer:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+This pushes a tag starting with `v`, which triggers the `Release` step in CI — the installer gets attached to a GitHub Release on the [Releases page](https://github.com/Adityasharma0810/TODO_APP/releases).
 
 ## Project Structure
 
