@@ -1,0 +1,48 @@
+name: Build Windows executable
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    name: Build Windows executable (Tauri)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+
+      - name: Ensure Rust components
+        run: |
+          rustup component add clippy rustfmt || echo "components may already be installed"
+
+      - name: Build Tauri app (Windows)
+        run: npm run tauri build
+
+      - name: Upload built bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauri-windows-bundle
+          path: src-tauri/target/release/bundle/**
