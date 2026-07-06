@@ -21,8 +21,13 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install Node dependencies
-        run: npm ci
+      - name: Install Node dependencies (workaround npm optional deps bug)
+        shell: pwsh
+        run: |
+          Write-Host 'Removing node_modules and package-lock.json from workspace (CI only)'
+          if (Test-Path node_modules) { Remove-Item node_modules -Recurse -Force }
+          if (Test-Path package-lock.json) { Remove-Item package-lock.json -Force }
+          npm install --no-optional
 
       - name: Build frontend
         run: npm run build
