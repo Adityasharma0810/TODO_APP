@@ -9,7 +9,7 @@ on:
 jobs:
   build-windows:
     name: Build Windows executable (Tauri)
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -24,11 +24,9 @@ jobs:
         run: npm cache clean --force
 
       - name: Install Node dependencies (workaround npm optional deps bug)
-        shell: pwsh
         run: |
-          Write-Host 'Removing node_modules and package-lock.json from workspace (CI only)'
-          if (Test-Path node_modules) { Remove-Item node_modules -Recurse -Force }
-          if (Test-Path package-lock.json) { Remove-Item package-lock.json -Force }
+          echo 'Removing node_modules and package-lock.json from workspace (CI only)'
+          rm -rf node_modules package-lock.json
           npm install
 
       - name: Build frontend
@@ -45,11 +43,23 @@ jobs:
         run: |
           rustup component add clippy rustfmt || echo "components may already be installed"
 
-      - name: Build Tauri app (Windows)
-        run: npm run tauri build
+      - name: Install Tauri dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - name: Build Tauri app (cross-compile to Windows)
+        run: npm run tauri build -- --target x86_64-pc-windows-gnu
 
       - name: Upload built bundle
         uses: actions/upload-artifact@v4
         with:
           name: tauri-windows-bundle
-          path: src-tauri/target/release/bundle/**
+          path: src-tauri/target/x86_64-pc-windows-gnu/release/bundle/**
